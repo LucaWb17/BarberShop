@@ -74,35 +74,28 @@ export const getAvailableTimeSlots = async (date: Date): Promise<string[]> => {
         return `${hours.toString().padStart(2, '0')}:${minutes}`;
       }
       
+      console.warn(`Time string '${timeStr}' not in expected HH:MM or H:MM format.`);
       return timeStr;
     };
     
-    // Normalizza tutti gli orari prenotati
-    const normalizedBooked = bookedSlots
-      .filter(Boolean)
-      .map(normalizeTime);
-      
-    // Normalizza anche gli orari disponibili per il confronto
-    const normalizedAvailable = timeSlots.map(normalizeTime);
-    
-    // Filtra gli orari disponibili
-    const available = normalizedAvailable.filter(
-      availableTime => !normalizedBooked.includes(availableTime)
+    // Normalizza tutti gli orari prenotati e mettili in un Set per efficienza
+    const normalizedBookedSet = new Set(
+      bookedSlots.filter(Boolean).map(normalizeTime)
     );
-    
-    // Recupera i timeSlots originali che corrispondono agli orari disponibili normalizzati
-    const result = timeSlots.filter((_, index) => 
-      available.includes(normalizedAvailable[index])
-    );
+
+    // Filtra gli orari disponibili confrontandoli con gli orari prenotati normalizzati
+    const availableSlots = timeSlots.filter(slot => {
+      const normalizedSlot = normalizeTime(slot);
+      return !normalizedBookedSet.has(normalizedSlot);
+    });
     
     // Debug logging
     console.log('📅 Data:', date.toISOString().split('T')[0]);
     console.log('🛑 Orari prenotati dal backend:', bookedSlots);
-    console.log('✅ Orari normalizzati prenotati:', normalizedBooked);
-    console.log('✅ Orari normalizzati disponibili:', normalizedAvailable);
-    console.log('🟢 Orari disponibili finali:', result);
+    console.log('✅ Orari normalizzati prenotati (Set):', normalizedBookedSet);
+    console.log('🟢 Orari disponibili finali:', availableSlots);
     
-    return result;
+    return availableSlots;
   } catch (error) {
     console.error('Errore caricamento orari:', error);
     // Return default time slots if there's an error
