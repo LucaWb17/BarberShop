@@ -137,7 +137,7 @@ try {
     flush();
 
     // ✉️ Configura mail destinatario
-    $mail_admin = 'wb17design91@gmail.com'; // Sostituire con la tua email reale
+    $mail_admin = 'pippo@gmail.com'; // Sostituire con la tua email reale
     $salonName = 'Il Tuo Barbiere'; // Nome del salone
     $adminSubject = "Nuova Prenotazione #$booking_id"; 
 
